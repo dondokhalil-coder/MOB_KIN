@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>MOB_KIN - Communes de Kinshasa</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+            margin: 0;
+            padding: 20px;}
+        h1 {color: #007bff;}
+        #communes {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;}
+        .commune {
+            background: white;
+            width: 200px;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);}
+        .commune h3 {
+            margin: 0;
+            color: #333;}
+        footer {color: #fff;
+            bottom: auto;
+            margin-top: 30px;
+            font-size: 0.9em;
+            color: #555;}
+        a{ color: blue;
+            text-decoration: none;}
+    </style>
+</head>
+<body>
+    <h1>MOB_KIN - Communes de Kinshasa</h1>
+    <p>
+        Liste des 24 communes de la ville de Kinshasa.
+    </p>
+    <div id="communes"></div>
+    <script>
+        const communesKinshasa = [
+            "Bandalungwa",
+            "Barumbu",
+            "Bumbu",
+            "Gombe",
+            "Kalamu",
+            "Kasa-Vubu",
+            "Kimbanseke",
+            "Kinshasa",
+            "Kintambo",
+            "Kisenso",
+            "Lemba",
+            "Limete",
+            "Lingwala",
+            "Makala",
+            "Maluku",
+            "Masina",
+            "Matete",
+            "Mont-Ngafula",
+            "N'Djili",
+            "Ngaba",
+            "Ngaliema",
+            "Ngiri-Ngiri",
+            "N'Sele",
+            "Selembao"
+        ];
+        const conteneur =
+        document.getElementById("communes");
+        communesKinshasa.forEach(function(commune) {
+            const carte =
+            document.createElement("div");
+            carte.className = "commune";
+            carte.innerHTML =
+            `<h3>${commune}</h3>`;
+            conteneur.appendChild(carte);
+        });
+    </script>
+    <footer>
+        <p>&copy; 2026 MOB_KIN. Tous droits réservés.<br>By DONDO KHALIL <br> <a href="mailto:dondokhalil@gmail.com">Visitez mon site</a></p>
+    </footer>
+</body>
+</html>
