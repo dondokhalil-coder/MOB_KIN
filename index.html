@@ -2,85 +2,214 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>MOB_KIN - Communes de Kinshasa</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MOB_KIN - Communes et Quartiers de Kinshasa</title>
     <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        /* 1. Body en Flexbox, sans padding pour laisser le footer toucher les bords */
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
             text-align: center;
             margin: 0;
-            padding: 20px;}
-        h1 {color: #007bff;}
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        h1 {
+            color: #007bff;
+            margin-top: 20px;
+        }
+
+        p {
+            margin-top: 5px;
+        }
+
+        /* 2. flex: 1 pousse le footer en bas | padding: 0 20px garde l'espace sur les côtés pour les cartes */
         #communes {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
             gap: 15px;
-            margin-top: 20px;}
+            margin-top: 20px;
+            padding: 0 20px;
+            flex: 1;
+        }
+
         .commune {
             background: white;
-            width: 200px;
+            width: 240px;
             padding: 15px;
             border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);}
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            align-self: flex-start;
+        }
+
         .commune h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+
+        .btn-quartiers {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.85em;
+            margin-top: 10px;
+            transition: background 0.2s;
+        }
+
+        .btn-quartiers:hover {
+            background-color: #0056b3;
+        }
+
+        .liste-quartiers {
+            display: none;
+            margin-top: 12px;
+            text-align: left;
+            width: 100%;
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
+            box-sizing: border-box;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .liste-quartiers ul {
             margin: 0;
-            color: #333;}
-        footer {color: #fff;
-            bottom: auto;
+            padding-left: 20px;
+            font-size: 0.85em;
+            color: #555;
+        }
+
+        .liste-quartiers.visible {
+            display: block;
+        }
+
+        /* 3. Footer collé en bas ET allant d'un bord à l'autre */
+        footer {
+            background-color: #007bff;
+            color: white;
             margin-top: 30px;
             font-size: 0.9em;
-            color: #555;}
-        a{ color: blue;
-            text-decoration: none;}
+            padding: 15px 0;
+            width: 100%;
+        }
+
+        a {
+            color: #ffffff;
+            text-decoration: none;
+        }
+
+        @media screen and (max-width: 600px) {
+            .commune {
+                width: 100%;
+                max-width: 280px;
+            }
+        }
     </style>
 </head>
 <body>
-    <h1>MOB_KIN - Communes de Kinshasa</h1>
-    <p>
-        Liste des 24 communes de la ville de Kinshasa.
-    </p>
+    <h1>MOB_KIN <br> Communes et Quartiers de Kinshasa</h1>
+    <p>Voici les 24 Communes de Kinshasa et leurs Quartiers.</p>
+    
     <div id="communes"></div>
+
     <script>
-        const communesKinshasa = [
-            "Bandalungwa",
-            "Barumbu",
-            "Bumbu",
-            "Gombe",
-            "Kalamu",
-            "Kasa-Vubu",
-            "Kimbanseke",
-            "Kinshasa",
-            "Kintambo",
-            "Kisenso",
-            "Lemba",
-            "Limete",
-            "Lingwala",
-            "Makala",
-            "Maluku",
-            "Masina",
-            "Matete",
-            "Mont-Ngafula",
-            "N'Djili",
-            "Ngaba",
-            "Ngaliema",
-            "Ngiri-Ngiri",
-            "N'Sele",
-            "Selembao"
-        ];
-        const conteneur =
-        document.getElementById("communes");
-        communesKinshasa.forEach(function(commune) {
-            const carte =
-            document.createElement("div");
+        const donneeKinshasa = {
+            "Bandalungwa": ["Adoula", "Bisengo", "Kasa-Vubu", "Lubundi", "Lumumba", "Mouleart", "Tshibangu"],
+            "Barumbu": ["Bitshaku-Tshaku", "Funa (I,II)", "Kapanga", "Kasafi", "Libulu", "Mozindo", "Ndolo", "Tshimanga"],
+            "Bumbu": ["Dipiya", "Kasai", "Kwango", "Lieutenant Mbaki", "Lokoro", "Lukenie", "Mai-Ndombe", "Matadi", "Mbandaka", "Mfimi", "Mongala", "Ntomba", "Ubangi"],
+            "Gombe": ["Batetela", "Clinique", "Commerce", "Croix-Rouge", "Fleuve", "Gare", "Golf", "Haut-Commandement", "Lemera", "Révolution"],
+            "Kalamu": ["Immo-Congo", "Kauka (I,II,III)", "Matonge (I,II,III)", "Pinzi", "Yolo-Nord (I,II,III)", "Yolo-Sud (I,II,III)"],
+            "Kasa-Vubu": ["Anciens Combattants", "Assossa", "Katanga", "Lodja", "Lubumbashi", "ONL", "Salango"],
+            "Kimbanseke": ["17 Mai", "Bahumbu", "Bamboma", "Biyela", "Disasi", "Esanga", "Kasa-Vubu", "Kikimi", "Kingasani(1,2)","Kimbanseke","Kimbwala","Lingu","Lubudi","Mabulu(1,2)","Malonda", "Manga", "Mbuala", "Mikondo", "Mokali", "Mulie", "Mvunda", "Ngandu", "Ngampani","Nsingi","Nzadi","Oka", "Révolution", "Sakombi", "Salongo","Sanga-Mamba"],
+            "Kinshasa": ["Aketi", "Boyoma", "Djalo", "Madimba", "Mongala", "Ngbaka", "Pende"],
+            "Kintambo": ["Itimbiri", "Kilimani","Lisala", "Lubudiluka", "Nganda", "Salongo","Tshinkela", "Wenze"],
+            "Kisenso": ["17 Mai", "Amba", "Bikanga","Dingi-Dngi","Kabila","Gare", "KItomesa","Kumbu", "Libération", "Mbuku", "Mission" ,"Mujinga", "Ngomba", "Nsola","Quartier de la paix" ,"Régideso","Revolution"],
+            "Lemba": ["Commerciale", "De l'École", "Échangeur", "Foire", "Gombele", "Kemi", "Kimpwanza", "Livulu", "Madrandelle", "Masano", "Mbanza-Lemba", "Malolo", "Righini", "Salongo"],
+            "Limete": ["Agricole", "Industriel", "Kingabwa", "Masiala", "Mayulu", "Mbamu", "Mfumu Mvula", "Mombele", "Mososo", "Moteba", "Ndanu", "Nzadi", "Résidentiel", "Salongo"],
+            "Lingwala": ["30 Juin", "Lokole", "Lufungula", "Ngunda-Lokombe", "Paka-Djuma", "PLC", "Singa-Mopepe", "Voix du Peuple", "Wenze"],
+            "Makala": ["Bagota", "Bahumbu", "Bolima", "Kabila", "Kisantu", "Kwango", "Lemba-Village", "Mabulu"],
+            "Maluku": ["Bu", "Dumi", "Kikimi", "Kimpoko", "Kingakati", "Kingono", "Kinzono", "Mai-Ndombe", "Maluku", "Mange-Ngenge", "Mbankana", "Menkao", "Monaco", "Mongata", "Mwe", "Ngama", "Nguma", "Yo", "Yoso"],
+            "Masina": ["Abattoir", "Boba", "Efoloko", "Kasai", "Kimbangu", "Longo", "Mafuta-Kizola", "Matadi", "Mfumu-Suka", "Nzuzi wa Mbombo", "Pelende", "Sans-Fil", "Tshango", "Tshuenge", "Télévision"],
+            "Matete": ["Baboma", "Bahumbu I", "Bahumbu II", "Banunu I", "Banunu II", "Batandu I", "Batandu II", "Bateke", "Batende", "Debonhomme", "Kinsatu", "Kinsimbu", "Kinzazi", "Lokele I", "Lokele II", "Malandi I", "Malandi II", "Mongo", "Mpudi", "Mutoto", "Pululu I", "Pululu II", "Singa", "Tomba", "Vitamine I", "Vitamine II"],
+            "Mont-Ngafula": ["CPA Mushie", "Kimbondo", "Kimbuta", "Kimbuala", "Kimwenza", "Kindele", "Lutendele", "Mama Mobutu", "Mama Yemo", "Masanga-Mbila", "Matadi Kibala", "Matadi Mayo", "Mazamba", "Mbuki", "Mitendi", "Musangu-Télécom", "Ndjili-Kilamba", "Ngansele", "Plateau I", "Plateau II", "Vunda-Manenga"],
+            "N'Djili": ["Quartier 1", "Quartier 2", "Quartier 3", "Quartier 4", "Quartier 5", "Quartier 6", "Quartier 7", "Quartier 8", "Quartier 9", "Quartier 10", "Quartier 11", "Quartier 12", "Quartier 13"],
+            "Ngaba": ["Baobab", "Bula-Mbemba", "Luyi", "Mateba", "Mpila", "Mukulua"],
+            "Ngaliema": ["Anciens Combattants", "Bangu", "Basoko", "Binza-Pigeon", "Bumba", "Congo", "Djelo-Binza", "Joli-Parc", "Kimpe", "Kinkenda", "Kinsuka-Pêcheur", "Lonzo", "Lubudi", "Lukunga", "Mama Yemo", "Manenga", "Mfinda", "Monganya", "Museyi", "Ngomba-Kikusa", "Punda"],
+            "Ngiri-Ngiri": ["24 Novembre", "Assossa", "Diangenda", "Diomi", "Elengesa", "Karthoum", "Petit-Petit", "Saio"],
+            "N'Sele": ["Badara", "Bahumbu I", "Bahumbu II", "Bibwa", "DIC", "Dingi-Dingi", "Domaine", "Kikole", "Kingakati", "Kinzono", "Mai-Ndombe", "Mangenge", "Menkao", "Mikala I", "Mikala II", "Mikondo", "Mikonga", "Moba Nse", "Monaco", "Mpasa-Maba", "Ngina", "Pêcheurs", "Sicotra", "Talangai"],
+            "Selembao": ["Badiadingi", "Cité-Verte", "Herady", "Inga", "Kalunga", "Kingu", "Konde", "Kombé", "Libération", "Lubudi", "Madiata", "Mbola", "Molende", "Muana", "Ndobé", "Ngafani", "Nkulu", "Ntunu", "Pululu Mbambu"]
+        };
+
+        const conteneur = document.getElementById("communes");
+
+        Object.keys(donneeKinshasa).forEach(function(commune) {
+            const quartiers = donneeKinshasa[commune];
+
+            const carte = document.createElement("div");
             carte.className = "commune";
-            carte.innerHTML =
-            `<h3>${commune}</h3>`;
+
+            let listeHTML = "<ul>";
+            quartiers.forEach(function(quartier) {
+                listeHTML += `<li>${quartier}</li>`;
+            });
+            listeHTML += "</ul>";
+
+            carte.innerHTML = `
+                <div>
+                    <h3>${commune}</h3>
+                    <button class="btn-quartiers">Voir quartiers (${quartiers.length})</button>
+                    <div class="liste-quartiers">
+                        ${listeHTML}
+                    </div>
+                </div>
+            `;
+
+            const bouton = carte.querySelector(".btn-quartiers");
+            const zoneQuartiers = carte.querySelector(".liste-quartiers");
+
+            bouton.addEventListener("click", function() {
+                zoneQuartiers.classList.toggle("visible");
+
+                if (zoneQuartiers.classList.contains("visible")) {
+                    bouton.textContent = "Masquer";
+                } else {
+                    bouton.textContent = `Voir quartiers (${quartiers.length})`;
+                }
+            });
+
             conteneur.appendChild(carte);
         });
     </script>
-    <footer>
-        <p>&copy; 2026 MOB_KIN. Tous droits réservés.<br>By DONDO KHALIL <br> <a href="mailto:dondokhalil@gmail.com">ME CONTACTER</a></p>
-    </footer>
+
+   <footer>
+    <p>
+        &copy; 2026 MOB_KIN. Tous droits réservés.<br> 
+        <strong>By DONDO KHALIL</strong> | 
+        <a href="mailto:dondokhalil@gmail.com">Nous Contacter</a> | 
+        <a href="https://www.instagram.com/mr_odn_01" target="_blank" rel="noopener noreferrer">Suivre</a>
+    </p>
+</footer>
 </body>
 </html>
